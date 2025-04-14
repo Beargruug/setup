@@ -18,9 +18,19 @@ else
   echo "Homebrew is already installed."
 fi
 
-# Function to check if a package is installed (formula or cask)
+# Function to check if a formula is installed
+is_formula_installed() {
+  brew list --formula "$1" &> /dev/null
+}
+
+# Function to check if a cask is installed
+is_cask_installed() {
+  brew list --cask | grep -q "^$1$"
+}
+
+# General function to check if a package (formula or cask) is installed
 is_installed() {
-  brew list --formula "$1" &> /dev/null || brew list --cask | grep -q "^$1$"
+  is_formula_installed "$1" || is_cask_installed "$1"
 }
 
 # Function to determine if a package is a formula or a cask
@@ -60,7 +70,7 @@ install_packages() {
   if [ ${#to_install_cask[@]} -ne 0 ]; then
     echo "Installing casks..."
     for cask in "${to_install_cask[@]}"; do
-      if is_installed "$cask"; then
+      if is_cask_installed "$cask"; then
         echo "Skipping '$cask': already installed."
       else
         echo "Installing '$cask'..."
