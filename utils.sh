@@ -25,7 +25,7 @@ is_formula_installed() {
 
 # Function to check if a cask is installed
 is_cask_installed() {
-  brew list --cask | grep -q "^$1$"
+  brew list --cask "$1" &> /dev/null
 }
 
 # General function to check if a package (formula or cask) is installed
