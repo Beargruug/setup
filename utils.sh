@@ -27,6 +27,7 @@ is_formula_installed() {
 is_cask_installed() {
   # Check if the cask is installed via Homebrew
   if brew list --cask "$1" &> /dev/null; then
+    echo "homebrew"
     return 0
   fi
 
@@ -34,6 +35,7 @@ is_cask_installed() {
   local app_name
   app_name=$(brew info --cask "$1" | grep -Eo "/Applications/[^ ]+\.app" | head -n 1)
   if [ -n "$app_name" ] && [ -d "$app_name" ]; then
+    echo 'manual'
     return 0
   fi
 
