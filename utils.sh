@@ -58,7 +58,14 @@ install_packages() {
   fi
 
   if [ ${#to_install_cask[@]} -ne 0 ]; then
-    echo "Installing casks: ${to_install_cask[*]}"
-    brew install --cask "${to_install_cask[@]}"
+    echo "Installing casks..."
+    for cask in "${to_install_cask[@]}"; do
+      if is_installed "$cask"; then
+        echo "Skipping '$cask': already installed."
+      else
+        echo "Installing '$cask'..."
+        brew install --cask "$cask"
+      fi
+    done
   fi
 }
