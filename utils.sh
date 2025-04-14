@@ -80,14 +80,19 @@ install_packages() {
   fi
 
   if [ ${#to_install_cask[@]} -ne 0 ]; then
-    echo "Installing casks..."
-    for cask in "${to_install_cask[@]}"; do
-      if is_cask_installed "$cask"; then
-        echo "Skipping '$cask': already installed."
-      else
-        echo "Installing '$cask'..."
-        brew install --cask "$cask"
+  echo "Installing casks..."
+  for cask in "${to_install_cask[@]}"; do
+    install_source=$(is_cask_installed "$cask")
+    if [ $? -eq 0 ]; then
+      if [ "$install_source" = "homebrew" ]; then
+        echo "Skipping '$cask': already installed via Homebrew."
+      elif [ "$install_source" = "manual" ]; then
+        echo "Skipping '$cask': already installed manually in /Applications."
       fi
-    done
-  fi
+    else
+      echo "Installing '$cask'..."
+      brew install --cask "$cask"
+    fi
+  done
+fi
 }
