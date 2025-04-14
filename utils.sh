@@ -27,7 +27,7 @@ is_formula_installed() {
 is_cask_installed() {
   # Check if the cask is installed via Homebrew
   if brew list --cask "$1" &> /dev/null; then
-    echo "homebrew"
+    echo "homebrew"  # Indicate that the app is installed via Homebrew
     return 0
   fi
 
@@ -35,10 +35,12 @@ is_cask_installed() {
   local app_name
   app_name=$(brew info --cask "$1" | grep -Eo "/Applications/[^ ]+\.app" | head -n 1)
   if [ -n "$app_name" ] && [ -d "$app_name" ]; then
-    echo 'manual'
+    echo "manual"  # Indicate that the app is installed manually
     return 0
   fi
 
+  # If not found, return 1 (not installed)
+  echo "not_installed"
   return 1
 }
 
@@ -85,12 +87,10 @@ install_packages() {
   echo "Installing casks..."
   for cask in "${to_install_cask[@]}"; do
     install_source=$(is_cask_installed "$cask")
-    if [ $? -eq 0 ]; then
-      if [ "$install_source" = "homebrew" ]; then
-        echo "Skipping '$cask': already installed via Homebrew."
-      elif [ "$install_source" = "manual" ]; then
-        echo "Skipping '$cask': already installed manually in /Applications."
-      fi
+    if [ "$install_source" = "homebrew" ]; then
+      echo "Skipping '$cask': already installed via Homebrew."
+    elif [ "$install_source" = "manual" ]; then
+      echo "Skipping '$cask': already installed manually in /Applications."
     else
       echo "Installing '$cask'..."
       brew install --cask "$cask"
