@@ -2,16 +2,11 @@
 
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then
-  echo "Homebrew is not installed. Installing Homebrew..."
-
-  # Install Homebrew
+  echo "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  # Verify installation
-  if command -v brew &> /dev/null; then
-    echo "Homebrew installed successfully!"
-  else
-    echo "Homebrew installation failed. Please check the logs."
+  if ! command -v brew &> /dev/null; then
+    echo "Homebrew installation failed."
     exit 1
   fi
 else
@@ -23,78 +18,56 @@ is_formula_installed() {
   brew list --formula "$1" &> /dev/null
 }
 
-# Function to check if a cask is installed via Homebrew or manually
+# Function to check if a cask is installed (via Homebrew or manually)
 is_cask_installed() {
-  # Check if the cask is installed via Homebrew
+  # Check if installed via Homebrew
   if brew list --cask "$1" &> /dev/null; then
-    echo "homebrew"  # Indicate that the app is installed via Homebrew
     return 0
   fi
 
-  # Check if the app exists in /Applications or ~/Applications
-  local app_name
-  app_name=$(brew info --cask "$1" | grep -Eo "/Applications/[^ ]+\.app" | head -n 1)
-  if [ -n "$app_name" ] && [ -d "$app_name" ]; then
-    echo "manual"  # Indicate that the app is installed manually
-    return 0
-  fi
-
-  # If not found, return 1 (not installed)
-  echo "not_installed"
-  return 1
+  # Check if app exists in Applications folder
+  local app_path
+  app_path=$(brew info --cask "$1" | grep -Eo "/Applications/[^ ]+\.app" | head -n 1)
+  [[ -n "$app_path" && -d "$app_path" ]]
 }
 
-# General function to check if a package (formula or cask) is installed
-is_installed() {
-  is_formula_installed "$1" || is_cask_installed "$1"
-}
-
-# Function to determine if a package is a formula or a cask
-is_formula() {
-  brew info --formula "$1" &> /dev/null
-}
-
-is_cask() {
-  brew info --cask "$1" &> /dev/null
-}
-
-# Function to install packages if not already installed
+# Function to install packages
 install_packages() {
   local packages=("$@")
-  local to_install_formula=()
-  local to_install_cask=()
+  local formulas=()
+  local casks=()
 
+  # Sort packages into formulas and casks
   for pkg in "${packages[@]}"; do
-    if is_installed "$pkg"; then
-      echo "Skipping '$pkg': already installed."
-    else
-      if is_formula "$pkg"; then
-        to_install_formula+=("$pkg")
-      elif is_cask "$pkg"; then
-        to_install_cask+=("$pkg")
+    if brew info --formula "$pkg" &> /dev/null; then
+      if ! is_formula_installed "$pkg"; then
+        formulas+=("$pkg")
       else
-        echo "Warning: Package '$pkg' not found as a formula or cask."
+        echo "Skipping formula '$pkg': already installed."
       fi
+    elif brew info --cask "$pkg" &> /dev/null; then
+      if ! is_cask_installed "$pkg"; then
+        casks+=("$pkg")
+      else
+        echo "Skipping cask '$pkg': already installed."
+      fi
+    else
+      echo "Warning: Package '$pkg' not found as a formula or cask."
     fi
   done
 
-  if [ ${#to_install_formula[@]} -ne 0 ]; then
-    echo "Installing formulae: ${to_install_formula[*]}"
-    brew install "${to_install_formula[@]}"
+  # Install formulas
+  if [[ ${#formulas[@]} -gt 0 ]]; then
+    echo "Installing formulas: ${formulas[*]}"
+    brew install "${formulas[@]}"
   fi
 
-  if [ ${#to_install_cask[@]} -ne 0 ]; then
-  echo "Installing casks..."
-  for cask in "${to_install_cask[@]}"; do
-    install_source=$(is_cask_installed "$cask")
-    if [ "$install_source" = "homebrew" ]; then
-      echo "Skipping '$cask': already installed via Homebrew."
-    elif [ "$install_source" = "manual" ]; then
-      echo "Skipping '$cask': already installed manually in /Applications."
-    else
+  # Install casks
+  if [[ ${#casks[@]} -gt 0 ]]; then
+    echo "Installing casks: ${casks[*]}"
+    for cask in "${casks[@]}"; do
       echo "Installing '$cask'..."
-      brew install --cask "$cask"
-    fi
-  done
-fi
+      brew install --cask "$cask" || echo "Failed to install '$cask', continuing..."
+    done
+  fi
 }
