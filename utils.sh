@@ -39,7 +39,9 @@ install_packages() {
   local to_install_cask=()
 
   for pkg in "${packages[@]}"; do
-    if ! is_installed "$pkg"; then
+    if is_installed "$pkg"; then
+      echo "Skipping '$pkg': already installed."
+    else
       if is_formula "$pkg"; then
         to_install_formula+=("$pkg")
       elif is_cask "$pkg"; then
