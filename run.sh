@@ -28,7 +28,9 @@ echo "Starting system setup..."
 
 # Update the system first
 echo "Updating system..."
-brew update && brew upgrade
+if ! brew update && brew upgrade; then
+    echo "Warning: Brew update or upgrade failed at some points. Continuing with the setup..."
+fi
 
 # Install packages
 echo "Installing the setup..."
