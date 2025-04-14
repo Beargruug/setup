@@ -3,27 +3,35 @@
 is_ansible_installed() {
   brew list --formula "ansible" &> /dev/null
 }
+
 if ! is_ansible_installed; then
   echo "Install ansible first"
   exit 1
 fi
 
-pushd ~
+pushd ~ || { echo "Error changing directory to home"; exit 1; }
 
 if [ ! -d ".ssh" ]; then
   echo "Creating .ssh directory"
-  mkdir .ssh
+  mkdir -p ~/.ssh
+  chmod 700 ~/.ssh
 fi
 
-popd
+popd || { echo "Error changing back to previous directory"; exit 1; }
+
+if [ ! -d "files/ssh_keys" ]; then
+    echo "Error: SSH keys directory not found"
+    exit 1
+fi
 
 echo "Copying SSH keys and config file to ~/.ssh/"
-cp files/ssh_keys/* ~/.ssh/
 
-echo "Setting permissions for SSH keys and config file"
-chmod 600 ~/.ssh/id_beargruug
+cp files/ssh_keys/* ~/.ssh/ || { echo "Error copying SSH keys"; exit 1; }
+chmod 600 ~/.ssh/id_beargruug || { echo "Error setting key permissions"; exit 1; }
 chmod 644 ~/.ssh/id_beargruug.pub
 chmod 644 ~/.ssh/config
 
 echo "Decrypting SSH keys"
-ansible-vault decrypt ~/.ssh/id_beargruug
+ansible-vault decrypt ~/.ssh/id_beargruug || { echo "Error decrypting SSH key"; exit 1; }
+
+echo "SSH setup completed successfully"

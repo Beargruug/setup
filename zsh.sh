@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-cd ~
+cd ~ || exit
 
 if [ -d "$HOME/.oh-my-zsh" ]; then
     echo "Oh My Zsh is already installed. Skipping installation."
