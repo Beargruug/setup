@@ -20,7 +20,7 @@ fi
 
 # Function to check if a package is installed (formula or cask)
 is_installed() {
-  brew list --formula "$1" &> /dev/null || brew list --cask "$1" &> /dev/null
+  brew list --formula "$1" &> /dev/null || brew list --cask | grep -q "^$1$"
 }
 
 # Function to determine if a package is a formula or a cask
