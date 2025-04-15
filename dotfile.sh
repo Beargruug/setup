@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+ORIGINAL_DIR=$(pwd)
 REPO_URL="https://github.com/Beargruug/.dotfiles"
 REPO_NAME=".dotfiles"
 
@@ -59,3 +60,4 @@ else
   fi
 fi
 
+cd "$ORIGINAL_DIR" || exit 1

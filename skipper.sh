@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+ORIGINAL_DIR=$(pwd)
 REPO_URL="https://github.com/Beargruug/skipper.nvim"
 REPO_NAME="skipper.nvim"
 
@@ -40,3 +41,4 @@ else
   fi
 fi
 
+cd "$ORIGINAL_DIR" || exit 1
