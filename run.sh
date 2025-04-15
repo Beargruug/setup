@@ -27,11 +27,12 @@ source packages.conf
 echo "Starting system setup..."
 
 # Update the system first
-echo "Updating system..."
+echo "Updating brew system..."
 if ! brew update; then
     echo "Warning: Brew update failed at some points. Continuing with the setup..."
 fi
 
+echo "Upgrading brew system..."
 if ! brew upgrade; then
     echo "Warning: Brew upgrade failed at some points. Continuing with the setup..."
 fi
