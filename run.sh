@@ -51,6 +51,13 @@ else
     echo "Warning: dotfile.sh not found. Skipping Dotfiles setup."
 fi
 
+if [ -f "skipper.sh" ]; then
+    echo "Installing Skipper..."
+    source skipper.sh
+else
+    echo "Warning: skipper.sh not found. Skipping Skipper setup."
+fi
+
 if [ -f "zsh.sh" ]; then
     echo "Checking Zsh..."
     source zsh.sh
