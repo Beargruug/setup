@@ -34,27 +34,28 @@ if [ -d "$REPO_NAME" ]; then
   echo "Repository '$REPO_NAME' already exists. Skipping clone"
 else
   git clone "$REPO_URL"
+
+  # Check if the clone was successful
+  if [ $? -eq 0 ]; then
+      cd "$REPO_NAME" || exit 1
+      echo "Cloned the repository successfully."
+      echo "Initializing submodules..."
+      init_submodules
+
+      pushd nvim/.config/nvim || exit 1
+      git checkout main
+      echo "Successfully checked out the main branch..."
+      popd || exit 1
+
+      chmod +x macos
+      chmod +x install
+
+      source macos
+      source install
+      echo "Successfully sourced macos and install scripts..."
+  else
+      echo "Failed to clone the repository."
+      exit 1
+  fi
 fi
 
-# Check if the clone was successful
-if [ $? -eq 0 ]; then
-  cd "$REPO_NAME" || exit 1
-  echo "Cloned the repository successfully."
-  echo "Initializing submodules..."
-  init_submodules
-
-  pushd nvim/.config/nvim || exit 1
-  git checkout main
-  echo "Successfully checked out the main branch..."
-  popd || exit 1
-
-  chmod +x macos
-  chmod +x install
-
-  source macos
-  source install
-  echo "Successfully sourced macos and install scripts..."
-else
-  echo "Failed to clone the repository."
-  exit 1
-fi

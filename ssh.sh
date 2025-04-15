@@ -26,12 +26,15 @@ fi
 
 echo "Copying SSH keys and config file to ~/.ssh/"
 
-cp files/ssh_keys/* ~/.ssh/ || { echo "Error copying SSH keys"; exit 1; }
-chmod 600 ~/.ssh/id_beargruug || { echo "Error setting key permissions"; exit 1; }
-chmod 644 ~/.ssh/id_beargruug.pub
-chmod 644 ~/.ssh/config
-
-echo "Decrypting SSH keys"
-ansible-vault decrypt ~/.ssh/id_beargruug || { echo "Error decrypting SSH key"; exit 1; }
+if [ -f ~/.ssh/id_beargruug ]; then
+    echo "Info: SSH Keys already exists. Skipping copy."
+else
+    cp files/ssh_keys/* ~/.ssh/ || { echo "Error copying SSH keys"; exit 1; }
+    chmod 600 ~/.ssh/id_beargruug || { echo "Error setting key permissions"; exit 1; }
+    chmod 644 ~/.ssh/id_beargruug.pub
+    chmod 644 ~/.ssh/config
+    echo "Decrypting SSH keys"
+    ansible-vault decrypt ~/.ssh/id_beargruug || { echo "Error decrypting SSH key"; exit 1; }
+fi
 
 echo "SSH setup completed successfully"
