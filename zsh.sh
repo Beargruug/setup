@@ -10,9 +10,15 @@ else
 fi
 
 if [ -f ".zshrc" ]; then
-  echo ".zshrc already exists. Skipping copy."
-else
-  echo "Copying .zshrc to home directory."
-  cp .dotfiles/zsh/.zshrc ~/
+  echo ".zshrc already exists. Replace will be done soon young Jedi."
+  rm ~/.zshrc
 fi
 
+echo "Copying .zshrc to home directory."
+cp .dotfiles/zsh/.zshrc ~/
+
+echo "Successfully copied .zshrc to home directory."
+
+source ~/.zshrc
+
+echo "Oh My Zsh installation completed successfully."
